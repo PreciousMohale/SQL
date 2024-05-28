@@ -1,0 +1,113 @@
+Dataset: Sales
+Data Analytics certificate course, Digital Africa: Talent4Startups
+Queried using: MySQL
+
+
+USE sales_data;
+ -- Retrive all columns from the sales table
+Select * 
+From sales;
+
+ -- Calculate the total sales and total profit generated
+Select Round(SUM(Sales), 2) AS Total_Sales, Round(SUM(Profit), 2) AS Total_Profit
+From sales;
+
+ -- Calculate the average sales and profit
+Select CEIL(AVG(Sales)) AS Sales_Average, CEIL(AVG(Profit)) AS Profit_Average
+From sales;
+
+ -- Identify top 3 regions with the highest total sales
+Select Region, ROUND(SUM(Sales), 2) AS Total_Sales
+From sales
+GROUP BY Region
+ORDER BY Total_Sales DESC
+LIMIT 3;
+
+ -- Determine the product with the highest profit margin
+SELECT Product, ROUND(SUM((Profit/Sales)) *100, 2) AS Total_Profit_Margin
+FROM sales
+GROUP BY Product
+ORDER BY Total_Profit_Margin DESC;
+
+ -- Find the total sales and profit for each product
+SELECT Product, ROUND(SUM(Sales), 2) AS Total_Sales, ROUND(SUM(Profit), 2) AS Total_Profit
+FROM sales
+GROUP BY Product;
+
+ -- Calculate the average profit for each region
+SELECT Region, CEIL(AVG(Profit)) AS Average_Profit
+FROM sales
+GROUP BY Region;
+
+ -- Date with the highest sales
+SELECT Date, Sales
+FROM sales
+ORDER BY Sales DESC 
+LIMIT 1;
+
+ -- Product with the highest sales in the East region
+SELECT Product, Sales
+FROM sales
+WHERE Region = "EAST"
+ORDER BY Sales DESC;
+
+ -- Top five dates with the highest sales
+SELECT Date, Sales
+FROM sales
+ORDER BY Sales DESC 
+LIMIT 5;
+
+ -- Products with sales of more than 500
+Select Product, Sales
+From sales
+Where Sales > 500
+GROUP BY Product;
+
+-- Find the profit average in regions east and south
+SELECT Region, CEIL(AVG(Profit)) AS "Average Profit"
+FROM sales
+WHERE Region IN("East", "South")
+GROUP BY Region;                 
+
+-- Find the total profit in the South region
+Select ROUND(SUM(Profit), 2) AS Total_Profit
+From sales
+Where Region = "South";
+
+-- Find total sales in the east region
+SELECT Sales AS Total_sales
+FROM sales
+WHERE Region = 'East'
+ORDER BY Sales DESC;
+
+-- Retrieve unique values in col 'region'
+SELECT DISTINCT Region
+FROM sales;
+
+-- find sum of profit in regions not in the east
+SELECT Region, SUM(Profit) AS "Total Profit"
+FROM sales
+WHERE Region <> "East"  -- <> same as != 
+GROUP BY Region;
+
+-- get products sold in the first quarter
+SELECT Date, Product
+FROM sales
+WHERE Date BETWEEN '2023-01-01' AND '2023-03-31';
+
+-- Search for product A in the north region
+SELECT *
+FROM sales
+WHERE Region = "North" AND Product Like "%A" OR Sales > 500;
+
+-- Search for region with characters 'ea'
+SELECT *
+FROM sales
+-- WHERE Region LIKE "%Ea%"
+WHERE Region REGEXP "Ea";
+
+
+-- Retrieve null values in column region
+SELECT *
+FROM sales
+WHERE Region IS NULL;
