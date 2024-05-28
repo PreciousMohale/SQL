@@ -17,7 +17,7 @@ SELECT e.*,
 FROM employees e; -- for every dpt id it shows the max salary
 
 -- ROW NUMBER
--- use partion by to assign unique values by department (the rn resets to 1 for each dept)
+-- use partion by to assign unique values by department
 SELECT * FROM (
 SELECT *,
 ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY employee_id ) AS rn
