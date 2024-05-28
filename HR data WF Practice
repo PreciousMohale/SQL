@@ -1,0 +1,48 @@
+-- WINDOWS FUNCTIONS (WF)
+
+Dataset: HR dataset
+Source: Youtube, Self-Practice
+Quueried using: MySQL
+
+USE hr_data;
+
+-- View max salary by dep id
+SELECT department_id, MAX(salary)
+FROM employees
+GROUP BY department_id;
+
+-- WF: use max salary as WF: retuns all cols from employees and adds max salary column.
+SELECT e.*, 
+      MAX(salary) OVER(PARTITION BY department_id) AS maximum_salary -- calculates mx slry based on unique cols in dept id
+FROM employees e; -- for every dpt id it shows the max salary
+
+-- ROW NUMBER
+-- use partion by to assign unique values by department (the rn resets to 1 for each dept)
+SELECT * FROM (
+SELECT *,
+ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY employee_id ) AS rn
+FROM employees) z
+WHERE z.rn < 3;
+
+-- RANK() and DENSE RANK()
+-- fetch top 3 employees who earn the max salry each dept
+SELECT * FROM (
+SELECT e.*,
+RANK() OVER(PARTITION BY department_id ORDER BY salary DESC) AS rnk
+FROM employees e) AS c
+WHERE c.rnk < 4;
+
+-- LEAD and LAG
+-- Find the salary of the previous employee
+SELECT e.*,
+LAG(salary) OVER(PARTITION BY department_id ORDER BY employee_id) as previous_emply_id
+FROM employees e;  
+
+-- use case: check if the salary of employee is higher, lower or equal to previous or next employee on record
+SELECT e.*,
+LAG(salary) OVER(PARTITION BY department_id ORDER BY employee_id) AS previous_emply_id,
+CASE WHEN e.salary > LAG(salary) OVER(PARTITION BY department_id ORDER BY employee_id) THEN "Higher than previous record"
+     WHEN e.salary < LAG(salary) OVER(PARTITION BY department_id ORDER BY employee_id) THEN "lower than previous record"
+     WHEN e.salary = LAG(salary) OVER(PARTITION BY department_id ORDER BY employee_id) THEN "Same as previous record"
+     END sal_range
+FROM employees e;
