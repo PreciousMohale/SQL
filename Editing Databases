@@ -1,0 +1,85 @@
+Dataset: SQL HandsOn datasets
+Source: Youtube, Mosh
+Queried using: MySQL
+
+INSERT INTO customers
+VALUES (DEFAULT, "Jake", "Smith","2000-09-03", NULL, "addressy", "town", "CA", DEFAULT);
+-- OR: 
+INSERT INTO customers (first_name, last_name, birth_date, address, city, state) 
+VALUES("John", "Smith","1990-01-09", "address", "city", "GA");
+
+-- insert multiple rows: insert 3 rows into the product table
+INSERT INTO products (name, quantity_in_stock, unit_price)
+VALUES ("cheddar cheese", 78, 1.5),
+	   ("mozzerella cheese", 45, 2.5),
+	   ("ricotta cheese", 56, 1.8);
+       
+-- insert hierarchical rows: insert data into multiple tables
+INSERT INTO orders (customer_id, order_date, status) 
+VALUES (1, '2019-09-08', 1);  -- add a valid customer id and status id
+
+INSERT INTO order_items 
+VALUES (last_insert_id(), 2, 4, 1.6), 
+       (last_insert_id(), 3, 6, 2.4);
+       
+-- create a copy of a table
+CREATE TABLE orders_archived AS
+SELECT * FROM orders;
+
+-- COPY orders placed b4 2019 into a orders_archive table
+INSERT INTO orders_archive
+SELECT *
+FROM orders
+WHERE order_date < '2019-01-01';
+
+USE sql_invoicing;
+-- create a copy of records in the invoices table, new table invoices_archived, join the table with the client table to get client name column
+-- copy only invoices with a payment
+CREATE TABLE invoices_archive AS
+SELECT i.invoice_id,
+       i.number,
+       c.name AS client,
+       i.invoice_total,
+       i.payment_total,
+       i.invoice_date,
+       i.due_date,
+       i.payment_date
+FROM invoices i
+JOIN clients c
+USING (client_id)
+WHERE payment_date IS NOT NULL;
+
+-- update data on 1 row
+-- update table, set the values for 1 or more cols, then identify the records that need updating
+UPDATE invoices
+SET payment_total = 10, payment_date = '2019-03-01'
+WHERE invoice_id = 1;
+
+
+-- exercise: give any customer born before 1990 50 extra points
+UPDATE customers
+SET points = points + 50
+WHERE birth_date > '1990-01-01';
+
+
+UPDATE invoices
+SET payment_total = 10, payment_date = '2019-03-01'
+WHERE client_id =
+              (SELECT client_id
+               FROM clients
+			   WHERE name = 'Myworks'); 
+
+-- update comments for orders for customers with more than 3000 points, set as gold if they have placed an order. 
+UPDATE orders
+SET comment = 'Gold customer'
+WHERE customer_id IN 
+                    (SELECT customer_id
+                     FROM customers
+                     WHERE points > 3000);  -- first find customers with points > 3000, execute then see results, see if to use IN
+
+-- DELETING ROWS
+DELETE FROM invoices
+WHERE client_id = (
+                 SELECT client_id
+                 FROM clients
+			     WHERE name = 'Myworks');
